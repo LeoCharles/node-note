@@ -1,59 +1,246 @@
 # MySQL 学习笔记
 
-+ 关系型数据库
+## 数据库简介
 
-  关系型数据库是建立在关系模型基础上的数据库，借助于集合代数等数学概念和方法来处理数据库中的数据。
+数据库（Database）是按照数据结构来组织、存储和管理数据的仓库。
 
-  + 数据库: 数据库是一些关联表的集合。
-  + 数据表: 表是数据的矩阵。
-  + 行：一行（=元组，或记录）是一组相关的数据。
-  + 列: 一列(数据元素) 包含了相同的数据。
-  + 主键：主键是唯一的。一个数据表中只能包含一个主键。你可以使用主键来查询数据。
-  + 外键：外键用于关联两个表。
-  + 复合键：复合键（组合键）将多个列作为一个索引键，一般用于复合索引。
-  + 索引：索引是对数据库表中一列或多列的值进行排序的一种结构。可快速访问数据库表中的特定信息。
+关系型数据库（RDBMS），是建立在关系模型基础上的数据库，借助于集合代数等数学概念和方法来处理数据库中的数据。
 
-+ 数据类型
++ 数据库: 数据库是一些关联表的集合。
++ 数据表: 表是数据的矩阵。在一个数据库中的表看起来像一个简单的电子表格。
++ 行：一行（=元组，或记录）是一组相关的数据。
++ 列: 一列(数据元素) 包含了相同的数据。
++ 冗余：存储两倍数据，冗余降低了性能，但提高了数据的安全性。
++ 主键：主键是唯一的。一个数据表中只能包含一个主键。你可以使用主键来查询数据。
++ 外键：外键用于关联两个表。
++ 复合键：复合键（组合键）将多个列作为一个索引键，一般用于复合索引。
++ 索引：索引是对数据库表中一列或多列的值进行排序的一种结构。可快速访问数据库表中的特定信息。
 
-  + 数值
+## 数据类型
 
-  | 类型        | 大小   | 范围（有符号）             | 范围（无符号）   | 用途           |
-  | --          | --     | --                       | --              | --            |
-  | tinyint     | 1 字节 | (-128，127)               | (0，255)        | 小整数值       |
-  | smallint    | 2 字节 | (-32768，32767)           | (0，65 535)     | 大整数值       |
-  | mendiumint  | 3 字节 | (-8388608，8388607)       | (0，16 777 215) | 大整数值       |
-  | int/integer | 4 字节 | (-2147483648，2147483647) | (0，4294967295) | 大整数值       |
-  | bigint      | 8 字节 | /                         | /               | 极大整数值     |
-  | float       | 4 字节 | /                         | /               | 单精度浮点数值 |
-  | double      | 8 字节 | /                         | /               | 双精度浮点数值 |
-  | decimal     |   /    | /                         | /               | 小数值        |
+### 数值类型
 
-  + 日期和时间类型
+数值类型分为：
 
-  | 类型      | 大小   | 范围                                    | 格式                | 用途            |
-  | --        | --    | --                                      | --                  | --             |
-  | date      | 3 字节 | 1000-01-01/9999-12-31                  | YYYY-MM-DD          | 日期值          |
-  | time      | 3 字节 | -838:59:59'/'838:59:59'                | HH:MM:SS            | 时间值或持续时间 |
-  | year      | 1 字节 | 1901/2155                              | YYYY                | 年份值          |
-  | datetime  | 8 字节 | 000-01-01 00:00:00/9999-12-31 23:59:59 | YYYY-MM-DD HH:MM:SS | 日期和时间值     |
-  | timestamp | 4 字节 | /                                      | YYYYMMDD HHMMSS     | 时间戳          |
++ 整数类型：`TINYINT`、`SMALLINT`、`MEDIUMINT`、`INT`、`BIGINT`
 
-  + 字符串类型
++ 浮点数类型：`FLOAT`、`DOUBLE`
 
-  | 类型       | 大小             | 用途                          |
-  | --         | --               | --                           |
-  | char       | 0-255 字节       | 定长字符串                    |
-  | varchar    | 0-65535 字节     | 变长字符串                    |
-  | tinyblob   | 0-255 字节       | 不超过 255 个字符的二进制字符串 |
-  | tinytext   | 0-255 字节       | 短文本字符串                   |
-  | blob       | 0-65535 字节     | 二进制形式的长文本数据          |
-  | text       | 0-65535 字节     | 长文本字符串                   |
-  | mediumblob | 0-16 777215字节  | 二进制形式的中等长度文本数据    |
-  | mediumtext | 0-16 777215字节  | 中等长度文本数据               |
-  | longblob   | 0-4294967295字节 | 二进制形式的极大文本数据        |
-  | longtext   | 0-4294967295字节 | 极大文本数据                   |
++ 定点类型：`DECIMAL(M,D)`
 
-+ 插入数据
+| 数据类型      | 存储空间 | 取值范围（有符号 ）                          |     取值范围（有符号 ）     | 说明         |
+| - | - | - | - | - | - |
+| TINYINT      | 1个字节  | (-128, 127)                                 | (0, 255)                  | 很小的整数    |
+| SMALLINT     | 2个字节  | (-32768, 32767)                             | (0, 65535)                | 小整数        |
+| MEDIUMINT    | 3个字节  | (-8388608, 8388607)                         | (0, 16777215)             | 中等大小整数  |
+| INT          | 4个字节  | (-2147483648, 2147483647)                   | (0, 4294967295)           | 普通大小整数  |
+| BIGINT       | 8个字节  | (-9223372036854775808, 9223372036854775807) | (0, 18446744073709551615) | 大整数        |
+| FLOAT        | 4个字节  | /                                           | /                         | 单精度浮点数值 |
+| DOUBLE       | 8个字节  | /                                           | /                         | 双精度浮点数值 |
+| DECIMAL(M,D) | 可变长度 | 依赖于 M 和 D 的值                           | 依赖于 M 和 D 的值         | 小数值        |
+
+一般整数都支持正负值，不过可以使用可选的属性 `UNSIGNED`，使其不允许负值，这样可以使用存储的正数上限提高一倍。
+
+还可以指定 `AUTO_INCRMENT` 属性，让该字段可以变成一个可以自动增长的序列。
+
+```sql
+CREATE TABLE test_users(
+  id INT UNSIGNED NOT NULL AUTO_INCRMENT PRIMARY KEY,
+  name VARCHAR(32) NOT NULL
+);
+```
+
+## 日期/时间类型
+
+表示日期的数据类型：`YEAR`、`TIME`、`DATE`、`DTAETIME`、`TIMESTAMP`
+
+| 数据类型     | 存储空间 | 取值范围                                          | 格式                | 说明            |
+| - | - | - | - | - |
+| YEAR        | 1个字节  | 1901 ~ 2155                                       | YYYY                | 年份值          |
+| TIME        | 3个字节  | -838:59:59 ~ 838:59:59                            | HH:MM:SS            | 时间值或持续时间 |
+| DATE        | 3个字节  | 1000-01-01 ~ 9999-12-31                           | YYYY-MM-DD          | 日期值          |
+| DATETIME    | 8个字节  | 000-01-01 00:00:00 ~ 9999-12-31 23:59:59          | YYYY-MM-DD HH:MM:SS | 日期和时间值     |
+| TIMESTAMP   | 4个字节  | 1980-01-01 00:00:01 UTC ~ 2040-01-19 03:14:07 UTC | YYYY-MM-DD HH:MM:SS | 时间戳          |
+
+## 字符串类型
+
+字符串数据类型可以分为二进制字符串类型和非二进制字符串类型两种：
+
++ 非二进制字符串： `CHAR`、`VARCHAR`、`TINYTEXT`、`TEXT`、`MEDIUMTEXT`、`LONGTEXT`
+
++ 二进制字符串： `BINARY`、`VARBINARY`、`TINYBLOB`、`BLOB`、`MEDIUMBLOB`、`LONGBLOB`
+
+| 数据类型     | 存储空间                           | 说明                       |
+| - | - | - |
+| CHAR(M)      | M 字节，1 <= M <= 255               | 定长非二进制字符串     |
+| VARCHAR(M)   | L + 1 字节，L <= M 和 1 <= M <= 255 | 变长非二进制字符串     |
+| TINYTEXT     | L + 1 字节，L < 2^8                 | 非常小的非二进制字符串 |
+| TEXT         | L + 2 字节，L < 2^16                | 小的非二进制字符串     |
+| MEDIUMTEXT   | L + 3 字节，L < 2^24                | 中等长度非二进制字符串 |
+| LONGTEXT     | L + 3 字节，L < 2^32                | 极大非二进制字符串     |
+| BINARY(M)    | M 字节                              | 定长二进制字符串      |
+| VARBINARY(M) | M + 1 字节                          | 变长二进制字符串      |
+| TINYBLOB     | L + 1 字节，L < 2^8                 | 非常小的 BLOB        |
+| BLOB         | L + 2 字节，L < 2^16                | 小的 BLOB            |
+| MEDIUMBLOB   | L + 3 字节，L < 2^24                | 中等大小的 BLOB      |
+| LONGBLOB     | L + 3 字节，L < 2^32                | 非常大的 BLOB        |
+
+BLOB 用于存储二进制字符串，比如图片、声音等数据。
+
+TEXT 用于存储非二进制字符串，所以 TEXT 系列的类型存储与解析与字符集有关。
+
+## 数据库基本操作
+
+### 创建数据库
+
+使用 `CREATE DATABASE` 语句创建数据库，语法：
+
+```sql
+CREATE DATABASE [IF NOT EXISTS] <数据库名> [[DEFAULT] CHARACTER SET <字符集名>] [[DEFAULT] COLLATE <校对规则名>];
+```
+
+语法说明：
+
++ <数据库名>：数据库名称必须符合操作系统的文件夹命名规则，注意在 MySQL 中不区分大小写。
++ IF NOT EXISTS：在创建数据库之前进行判断，只有该数据库目前尚不存在时才能执行操作。此选项可以用来避免数据库已经存在而重复创建的错误。
++ [DEFAULT] CHARACTER SET：指定数据库的默认字符集。字符集是用来定义 MySQL 存储字符串的方式。
++ [DEFAULT] COLLATE：指定字符集的默认校对规则。校对规则定义了比较字符串的方式，解决排序和字符分组的问题。
+
+实例：
+
+```sql
+-- 判断数据库是否存在，创建名为 test_db 的数据库
+CREATE DATABASE IF NOT EXISTS test_db;
+
+-- 指定字符集和认校对规则 utf8_chinese_ci（简体中文，不区分大小写）
+CREATE DATABASE IF NOT EXISTS test_db DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_chinese_ci;
+```
+
+### 查看数据库
+
+使用 `SHOW DATABASES` 语句查看数据库，语法：
+
+```sql
+SHOW DATABASES [LIKE '数据库名'];
+```
+
+语法说明：
+
++ LIKE 从句是可选项，用于匹配指定的数据库名称。LIKE 从句可以部分匹配，也可以完全匹配。
++ 数据库名由单引号 `''` 包裹。
+
+实例：
+
+```sql
+-- 查看所有数据库
+SHOW DATABASES;
+
+-- 使用 LIKE 从句，查看与 test_db 完全匹配的数据库：
+SHOW DATABASES LIKE 'test_db';
+```
+
+### 删除数据库
+
+使用 `DROP DATABASE` 语句删除已创建的数据库，语法：
+
+```sql
+DROP DATABASE [IF EXISTS] <数据库名>;
+```
+
+### 选择数据库
+
+使用 `USE` 语句用来完成一个数据库到另一个数据库的跳转，语法：
+
+```sql
+USE <数据库名>;
+```
+
+## 数据表操作
+
+### 创建数据表
+
+使用 `CREATE TABLE` 语句创建数据表，该语句命令比较多，其主要是由表创建定义、表选项和分区选项所组成，语法：
+
+```sql
+CREATE TABLE <表名> ([表定义选项])[表选项][分区选项];
+```
+
+语法说明：
+
++ 表定义选项的格式为：`<列名1> <类型1> [,…] <列名n> <类型n>`
++ 表名不区分大小写，不能使用 SQL 语言中的关键字，如DROP、ALTER、INSERT等。
++ 表中每个列（字段）的名称和数据类型，如果创建多个列，要用逗号隔开。
+
+实例：
+
+```sql
+-- 如果数据库中存在 user_accounts表，就删除掉
+DROP TABLE IF EXISTS `user_accounts`;
+CREATE TABLE `user_accounts` (
+  `id`             int(100) unsigned NOT NULL AUTO_INCREMENT primary key,
+  `password`       varchar(32)       NOT NULL DEFAULT '' COMMENT '用户密码',
+  `reset_password` tinyint(32)       NOT NULL DEFAULT 0 COMMENT '用户类型：0－不需要重置密码；1-需要重置密码',
+  `mobile`         varchar(20)       NOT NULL DEFAULT '' COMMENT '手机号',
+  `create_at`      timestamp(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `update_at`      timestamp(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  -- 创建唯一索引，不允许重复
+  UNIQUE INDEX idx_user_mobile(`mobile`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表信息';
+```
+
+数据类型的属性：
+
++ NULL：数据列可包含 NULL 值
++ NOT NULL：数据列不允许包含NULL值
++ DEFAULT：默认值
++ PRIMARY KEY：主键
++ AUTO_INCREMENT：自动递增，适用于整数类型
++ UNSIGNED：是指数值类型只能为正数
++ CHARACTER SET name：指定一个字符集
++ COMMENT：对表或者字段说明
+
+### 查看数据表
+
+使用 `SHOW TABLES` 语句查看当前数据库下所有的数据表。
+
+使用 `DESCRIBE / DESC <表名>` 语句可以查看表的字段信息，包括字段名、字段数据类型、是否为主键、是否有默认值等。
+
+### 修改数据表
+
+使用 `ALTER TABLE` 语句修改表。
+
+常用的修改表的操作有修改表名、修改字段数据类型或字段名、增加和删除字段、修改字段的排列位置、更改表的存储引擎、删除表的外键约束等。
+
+语法：
+
+```sql
+ALTER TABLE <表名> [修改选项];
+```
+
+修改选项：
+
+```sql
+{ ADD COLUMN <列名> <类型>
+| CHANGE COLUMN <旧列名> <新列名> <新列类型>
+| ALTER COLUMN <列名> { SET DEFAULT <默认值> | DROP DEFAULT }
+| MODIFY COLUMN <列名> <类型>
+| DROP COLUMN <列名>
+| RENAME TO <新表名> }
+```
+
+#### 添加字段
+
+语法：`ALTER TABLE <表名> ADD <新字段名> <数据类型> [约束条件] [FIRST|AFTER 已存在的字段名];`
+
++ FIRST 为可选参数，将新添加的字段设置为表的第一个字段。
++ AFTER 为可选参数，将新添加的字段添加到指定的已存在的字段名的后面。
+
+
+## 增删改查
+
+### 新增数据
+
+语法：
 
   `INSERT INTO table_name(field1, field2, ...) VALUES (value1, value2, ...);`
 
