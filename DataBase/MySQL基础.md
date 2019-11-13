@@ -178,6 +178,7 @@ CREATE TABLE <表名> ([表定义选项])[表选项][分区选项];
 DROP TABLE IF EXISTS `user_accounts`;
 CREATE TABLE `user_accounts` (
   `id`             int(100) unsigned NOT NULL AUTO_INCREMENT primary key,
+  `nickname`       varchar(32)       NOT NULL DEFAULT '' COMMENT '用户昵称',
   `password`       varchar(32)       NOT NULL DEFAULT '' COMMENT '用户密码',
   `reset_password` tinyint(32)       NOT NULL DEFAULT 0 COMMENT '用户类型：0－不需要重置密码；1-需要重置密码',
   `mobile`         varchar(20)       NOT NULL DEFAULT '' COMMENT '手机号',
@@ -205,6 +206,12 @@ CREATE TABLE `user_accounts` (
 
 使用 `DESCRIBE / DESC <表名>` 语句可以查看表的字段信息，包括字段名、字段数据类型、是否为主键、是否有默认值等。
 
+### 删除数据表
+
+使用 `DROP TABLE` 语句删除数据表。
+
+语法： `DROP TABLE [IF EXISTS] <表名> [ , <表名1> , <表名2>, ...];`
+
 ### 修改数据表
 
 使用 `ALTER TABLE` 语句修改表。
@@ -230,29 +237,107 @@ ALTER TABLE <表名> [修改选项];
 
 #### 添加字段
 
-语法：`ALTER TABLE <表名> ADD <新字段名> <数据类型> [约束条件] [FIRST|AFTER 已存在的字段名];`
+语法：`ALTER TABLE <表名> ADD COLUMN <新字段名> <数据类型> [约束条件] [FIRST|AFTER 已存在的字段名];`
 
 + FIRST 为可选参数，将新添加的字段设置为表的第一个字段。
 + AFTER 为可选参数，将新添加的字段添加到指定的已存在的字段名的后面。
 
+实例：
+
+```sql
+-- 添加 age 字段
+ALTER TABLE user_accounts ADD COLUMN age TINYINT;
+```
+
+#### 修改字段名
+
+语法：`ALTER TABLE <表名> CHANGE COLUMN <旧字段名> <新字段名> <新数据类型>;`
+
+实例：
+
+```sql
+-- 修改 nickname 字段名
+ALTER TABLE user_accounts CHANGE COLUMN nickname username VARCHAR(25);
+```
+
+#### 修改字段数据类型
+
+语法：`ALTER TABLE <表名> MODIFY <字段名> <数据类型>;`
+
+实例：
+
+```sql
+-- 修改 nickname 数据类型
+ALTER TABLE user_accounts MODIFY nickname VARCHAR(30);
+```
+
+#### 删除字段
+
+语法：`ALTER TABLE <表名> DROP <字段名>;`
+
+实例：
+
+```sql
+-- 删除 username 字段
+ALTER TABLE user_accounts DROP username;
+```
 
 ## 增删改查
 
+### 查询数据
+
+从数据表中查询数据的基本语句为 `SELECT` 语句，语法：
+
+```sql
+SELECT {* | <字段名>} FROM <表1>, <表2>, …
+[WHERE <表达式>]
+[GROUP BY <group by definition>]
+[HAVING <expression> [{<operator> <expression>}…]]
+[ORDER BY <order by definition>]
+[LIMIT[<offset>,] <row count>]
+```
+
+各子句含义：
+
++ `{ * | <字段列名> }` 表示查询的字段，其中字段列至少包含一个字段名称，如果要查询多个字段，多个字段之间要用逗号隔开，最后一个字段后不要加逗号，通配符表示查询所有字段。
++ `FROM <表1>, <表2>, …`，表示查询数据的来源，可以是单个或多个。
++ `WHERE` 可选项，用来设定查询条件。
++ `GROUP BY <字段>` 将查询出来的数据用指定的字段进行分组。
++ `HAVING` 用来指定一组行或聚合的过滤条件，通常与 `GROUP BY` 子句一起使用。
++ `ORDER BY <字段>` 对查询出来的数据进行升序（ASC）或降序（DESC）排序。
++ `LIMIT` 用来设定返回的数据条数。
+
+```sql
+-- 查询所有数据
+SELECT * FROM user_accounts;
+-- 查询指定的字段
+SELECT nickname, mobile, age FROM user_accounts WHERE age > 18;
+```
+
 ### 新增数据
 
-语法：
+`INSERT` 语句有两种语法形式，分别是 `INSERT VALUES` 语句和 `INSERT SET` 语句。
 
-  `INSERT INTO table_name(field1, field2, ...) VALUES (value1, value2, ...);`
+语法1：`INSERT INTO <表名> (<列名1> … , <列名n> ) VALUES (<值1>, … , <值n>);`
 
-+ 查询数据
+语法2：`INSERT INTO <表名> SET <列名1> = <值1>, <列名2> = <值2>, … ;`
 
-  `SELLECT column_name1, column_name2 From table_name [WHERE Clause] [LIMIT N] [OFFSET M]`
-  + 查询语句中可以使用一个或者多个表，表之间使用逗号(,)分割，并使用 `WHERE` 语句来设定查询条件。
-  + `SELECT` 命令可以读取一条或者多条记录。
-  + 可以使用星号（`*`）来代替其他字段，`SELECT` 语句会返回表的所有字段数据。
-  + 可以使用 `WHERE` 语句来包含任何条件。
-  + 可以使用 `LIMIT` 属性来设定返回的记录数。
-  + 可以使用 `OFFSET` 指定 `SELECT` 语句开始查询的数据偏移量。默认情况下偏移量为 0 。
+若向表中的所有列插入数据，直接采用 `INSERT <表名> VALUES (<值1>, … , <值n>)` 即可，所以的列名均可省略。
+
+使用 `INSERT INTO … SELECT … FROM` 语句可以从一个或多个表中取出数据，并将这些数据作为行数据插入表中。
+
+实例：
+
+```sql
+-- 使用 insert valus 插入数据
+INSERT INTO user_accounts (nickname, mobile) VALUES ('leo', 15522223333);
+
+-- 使用 insert set 插入数据
+INSERT INTO user_accounts SET nickname = 'Bob', mobile = 13877779999;
+
+-- 从 users 表中查询数据，并将值插入 user_accounts 表
+INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
+```
 
 + `WHERE` 子句
 
