@@ -305,14 +305,66 @@ SELECT {* | <字段名>} FROM <表1>, <表2>, …
 + `GROUP BY <字段>` 将查询出来的数据用指定的字段进行分组。
 + `HAVING` 用来指定一组行或聚合的过滤条件，通常与 `GROUP BY` 子句一起使用。
 + `ORDER BY <字段>` 对查询出来的数据进行升序（ASC）或降序（DESC）排序。
-+ `LIMIT` 用来设定返回的数据条数。
++ `LIMIT` 用来设定返回的数据条数。如果是两个数字，第一个是偏移量（默认是0），第二个是返回的条数。
 
 ```sql
 -- 查询所有数据
 SELECT * FROM user_accounts;
 -- 查询指定的字段
-SELECT nickname, mobile, age FROM user_accounts WHERE age > 18;
+SELECT nickname, mobile, age FROM user_accounts;
 ```
+
+#### 去重
+
+可以用 `DISTINCT` 关键字去重。
+
+语法：`SELECT DISTINCT <字段名> FROM <表名>`
+
+```sql
+-- 返回的 age 字段值 不得重复
+SELECT DISTINCT age FROM user_accounts;
+```
+
+#### 别名
+
+当表名很长或者执行一些特殊查询的时候，为了方便操作或者需要多次使用相同的表时，可以用 `AS` 关键字为表指定别名，用这个别名代替表原来的名称。
+
+也可以指定列的别名，替换字段或表达式。
+
+语法1：`<表名> [AS] <别名>`，`AS` 关键字为可选
+
+语法2：`<列名> [AS] <列别名>`
+
+```sql
+-- 指定表别名
+SELECT user.nickname, user.id FROM user_accounts AS user;
+-- 指定列别名
+SELECT nickname AS username FROM user_accounts;
+```
+
+#### 分页
+
+使用 `LIMT` 来限制返回的条数。
+
+语法： `<LIMIT> [<位置偏移量>,] <行数>`
+
+`LIMIT` 接受一个或两个数字参数。参数必须是一个整数常量。
+
+如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。
+
+```sql
+-- 查询第一页，返回 5 条
+SELECT * FROM user_accounts LIMIT 0, 5;
+```
+
+#### 排序
+
+`ORDER BY` 子句用来进行排序。
+
+语法：`ORDER BY {<列名> | <表达式> | <位置>} [ASC|DESC]`
+
+
+
 
 ### 新增数据
 
@@ -331,10 +383,8 @@ SELECT nickname, mobile, age FROM user_accounts WHERE age > 18;
 ```sql
 -- 使用 insert valus 插入数据
 INSERT INTO user_accounts (nickname, mobile) VALUES ('leo', 15522223333);
-
 -- 使用 insert set 插入数据
 INSERT INTO user_accounts SET nickname = 'Bob', mobile = 13877779999;
-
 -- 从 users 表中查询数据，并将值插入 user_accounts 表
 INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 ```
