@@ -363,6 +363,10 @@ SELECT * FROM user_accounts LIMIT 0, 5;
 
 语法：`ORDER BY {<列名> | <表达式> | <位置>} [ASC|DESC]`
 
+```sql
+-- 默认升序排列
+SELECT * FROM user_accounts ORDER BY age;
+```
 
 
 
