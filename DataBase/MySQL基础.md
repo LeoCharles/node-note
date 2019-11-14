@@ -50,7 +50,7 @@ CREATE TABLE test_users(
 );
 ```
 
-## 日期/时间类型
+### 日期/时间类型
 
 表示日期的数据类型：`YEAR`、`TIME`、`DATE`、`DTAETIME`、`TIMESTAMP`
 
@@ -62,7 +62,7 @@ CREATE TABLE test_users(
 | DATETIME    | 8个字节  | 000-01-01 00:00:00 ~ 9999-12-31 23:59:59          | YYYY-MM-DD HH:MM:SS | 日期和时间值     |
 | TIMESTAMP   | 4个字节  | 1980-01-01 00:00:01 UTC ~ 2040-01-19 03:14:07 UTC | YYYY-MM-DD HH:MM:SS | 时间戳          |
 
-## 字符串类型
+### 字符串类型
 
 字符串数据类型可以分为二进制字符串类型和非二进制字符串类型两种：
 
@@ -111,7 +111,6 @@ CREATE DATABASE [IF NOT EXISTS] <数据库名> [[DEFAULT] CHARACTER SET <字符�
 ```sql
 -- 判断数据库是否存在，创建名为 test_db 的数据库
 CREATE DATABASE IF NOT EXISTS test_db;
-
 -- 指定字符集和认校对规则 utf8_chinese_ci（简体中文，不区分大小写）
 CREATE DATABASE IF NOT EXISTS test_db DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_chinese_ci;
 ```
@@ -134,7 +133,6 @@ SHOW DATABASES [LIKE '数据库名'];
 ```sql
 -- 查看所有数据库
 SHOW DATABASES;
-
 -- 使用 LIKE 从句，查看与 test_db 完全匹配的数据库：
 SHOW DATABASES LIKE 'test_db';
 ```
@@ -282,9 +280,7 @@ ALTER TABLE user_accounts MODIFY nickname VARCHAR(30);
 ALTER TABLE user_accounts DROP username;
 ```
 
-## 增删改查
-
-### 查询数据
+## 查询数据
 
 从数据表中查询数据的基本语句为 `SELECT` 语句，语法：
 
@@ -303,7 +299,7 @@ SELECT {* | <字段名>} FROM <表1>, <表2>, …
 + `FROM <表1>, <表2>, …`，表示查询数据的来源，可以是单个或多个。
 + `WHERE` 可选项，用来设定查询条件。
 + `GROUP BY <字段>` 将查询出来的数据用指定的字段进行分组。
-+ `HAVING` 用来指定一组行或聚合的过滤条件，通常与 `GROUP BY` 子句一起使用。
++ `HAVING` 用于对 `WHERE` 和 `GROUP BY` 查询出来的分组进行过滤，查出满足条件的分组结果。
 + `ORDER BY <字段>` 对查询出来的数据进行升序（ASC）或降序（DESC）排序。
 + `LIMIT` 用来设定返回的数据条数。如果是两个数字，第一个是偏移量（默认是0），第二个是返回的条数。
 
@@ -314,121 +310,88 @@ SELECT * FROM user_accounts;
 SELECT nickname, mobile, age FROM user_accounts;
 ```
 
-#### 去重
+### 条件查询
 
-可以用 `DISTINCT` 关键字去重。
+使用 `WHERE` 子句来指定查询条件。
 
-语法：`SELECT DISTINCT <字段名> FROM <表名>`
+语法：`WHERE <查询条件> {<判定运算1>，<判定运算2>，…}`
 
-```sql
--- 返回的 age 字段值 不得重复
-SELECT DISTINCT age FROM user_accounts;
-```
-
-#### 别名
-
-当表名很长或者执行一些特殊查询的时候，为了方便操作或者需要多次使用相同的表时，可以用 `AS` 关键字为表指定别名，用这个别名代替表原来的名称。
-
-也可以指定列的别名，替换字段或表达式。
-
-语法1：`<表名> [AS] <别名>`，`AS` 关键字为可选
-
-语法2：`<列名> [AS] <列别名>`
++ 使用 `AND` 或者 `OR` 指定一个或多个条件。
++ `WHERE` 子句的字符串比较是不区分大小写的，可以使用 `BINARY` 关键字来设定区分大小写。
 
 ```sql
--- 指定表别名
-SELECT user.nickname, user.id FROM user_accounts AS user;
--- 指定列别名
-SELECT nickname AS username FROM user_accounts;
+-- 日期字段查询
+SELECT create_at FROM user_accounts WHERE create_at < '2019-11-14';
+-- 多条件查询
+SELECT * FROM user_accounts WHERE age >= 18 AND sex='female';
+SELECT * FROM user_accounts WHERE age < 20 OR nickname='Tom';
+-- 使用 BINARY 区分大小写
+SELECT nickname FROM user_accounts WHERE BINARY nickname='bob';
 ```
 
-#### 分页
+### 模糊查询
 
-使用 `LIMT` 来限制返回的条数。
+使用 `LIKE` 来替换 `=` 进行模糊查询。
 
-语法： `<LIMIT> [<位置偏移量>,] <行数>`
+语法：`<表达式1> [NOT] LIKE <表达式2>`
 
-`LIMIT` 接受一个或两个数字参数。参数必须是一个整数常量。
-
-如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。
++ 百分号（%）：百分号匹配任何字符串，并且该字符串可以出现任意次，百分号不匹配空值。
++ 下划线（_）：下画线只匹配单个字符，而不是多个字符，也不是 0 个字符。
 
 ```sql
--- 查询第一页，返回 5 条
-SELECT * FROM user_accounts LIMIT 0, 5;
+-- 查询所有 B 开头的昵称
+SELECT nickname FROM user_accounts WHERE nickname LIKE 'B%';
+-- 查询所有 m 结尾的昵称
+SELECT nickname FROM user_accounts WHERE nickname LIKE '%m';
+-- 查询包含字母 o 的昵称
+SELECT nickname FROM user_accounts WHERE nickname LIKE '%o%';
+-- 查询包含字母 o 的三个字符的昵称
+SELECT nickname FROM user_accounts WHERE nickname LIKE '_O_';
 ```
 
-#### 排序
+### 分组查询
 
-`ORDER BY` 子句用来进行排序。
+使用 `GROUP BY` 子句，将结果集中的数据行根据选择列的值进行逻辑分组，实现对每个组而不是对整个结果集进行整合。
+
+语法：`GROUP BY { <列名> | <表达式> | <位置> } [ASC | DESC]`
+
++ `<列名>`：指定用于分组的列。可以指定多个列，彼此间用逗号分隔。
++ `<表达式>`：指定用于分组的表达式。在分组的列上我们可以使用 `COUNT`, `SUM`, `AVG` 等函数。
++ `<位置>`：指定用于分组的选择列在 `SELECT` 语句结果集中的位置，通常是一个正整数。
++ `ASC|DESC`：`ASC` 表示按升序分组（默认值），`DESC` 表示按降序分组。这两个关键字必须位于对应的列名、表达式、列的位置之后。
+
+`GROUP_CONCAT()` 将 `GROUP BY` 产生的分组结果中同一个分组中的值连接起来，返回一个字符串结果。
+
+```sql
+-- age 按降序分组，nickname 按升序分组
+SELECT age, nickname FROM user_accounts GROUP BY age DESC, nickname ASC;
+-- 按 age 分组，并将同一组的昵称连接起来
+SELECT age, GROUP_CONCAT(nickname) AS username FROM user_accounts GROUP BY age;
+-- 按 sex 分组，并统计每组的数量
+SELECT sex, COUNT(*) AS user_count FROM user_accounts GROUP BY sex;
+```
+
+### 排序
+
+使用 `ORDER BY` 子句用来进行排序。
 
 语法：`ORDER BY {<列名> | <表达式> | <位置>} [ASC|DESC]`
 
 ```sql
 -- 默认升序排列
 SELECT * FROM user_accounts ORDER BY age;
+SELECT * FROM user_accounts ORDER BY id ASC;
 ```
 
 
 
-### 新增数据
 
-`INSERT` 语句有两种语法形式，分别是 `INSERT VALUES` 语句和 `INSERT SET` 语句。
-
-语法1：`INSERT INTO <表名> (<列名1> … , <列名n> ) VALUES (<值1>, … , <值n>);`
-
-语法2：`INSERT INTO <表名> SET <列名1> = <值1>, <列名2> = <值2>, … ;`
-
-若向表中的所有列插入数据，直接采用 `INSERT <表名> VALUES (<值1>, … , <值n>)` 即可，所以的列名均可省略。
-
-使用 `INSERT INTO … SELECT … FROM` 语句可以从一个或多个表中取出数据，并将这些数据作为行数据插入表中。
-
-实例：
+使用 `BETWEEN AND` 来查询某个范围内的值，该操作符需要两个参数，即范围的开始值和结束值。
 
 ```sql
--- 使用 insert valus 插入数据
-INSERT INTO user_accounts (nickname, mobile) VALUES ('leo', 15522223333);
--- 使用 insert set 插入数据
-INSERT INTO user_accounts SET nickname = 'Bob', mobile = 13877779999;
--- 从 users 表中查询数据，并将值插入 user_accounts 表
-INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
+SELECT * FROM user_accounts WHERE create_at BETWEEN '2019-11-11' AND '2019-11-14';
 ```
 
-+ `WHERE` 子句
-
-  `SELECT field1, field2,...fieldN FROM table_name1, table_name2...[WHERE condition1 [AND [OR]] condition2... ;`
-
-  + `WHERE` 子句类似于程序语言中的 `if` 条件，根据 MySQL 表中的字段值来读取指定的数据。
-  + 可以使用 `AND` 或者 `OR` 指定一个或多个条件。
-  + `WHERE` 子句也可以运用于 SQL 的 `DELETE` 或者 `UPDATE` 命令。
-
-+ 修改数据
-
-  `UPDATE table_name SET field1=new_value1, field2=new_value2 [WHERE Clause];`
-
-  + 可以同时更新一个或多个字段。
-  + 可以在 `WHERE` 子句中指定任何条件。
-  + 可以在一个单独表中同时更新数据。
-
-+ 删除数据
-
-  `DELETE FROM table_name [WHERE Clause]`
-
-  + 如果没有指定 `WHERE` 子句，MySQL 表中的所有记录将被删除。
-  + 可以在 `WHERE` 子句中指定任何条件。
-  + 可以在单个表中一次性删除记录。
-
-+ `LIKE` 子句
-
-  `WHERE` 子句中可以使用等号 `=` 来设定获取数据的条件，`LIKE` 子句中使用百分号 `%` 来表示任意字符，类似于正则表达式中的星号 `*`。
-
-  `SELECT field FROM table_name WHERE field LIKE condition;`
-
-  + 可以在 `WHERE` 子句中指定任何条件。
-  + 可以在 `WHERE` 子句中使用 `LIKE` 子句。
-  + 可以使用 `LIKE` 子句代替等号 `=`。
-  + `LIKE` 通常与 `%`一同使用，类似于一个元字符的搜索。
-  + 可以使用 `AND` 或者 `OR` 指定一个或多个条件。
-  + 可以在 `DELETE` 或 `UPDATE` 命令中使用 `WHERE...LIKE` 子句来指定条件。
 
 + 正则表达式
 
@@ -438,7 +401,7 @@ INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 
   `UNION` 操作符用于连接两个以上的 `SELECT` 语句的结果组合到一个结果集合中。多个 `SELECT` 语句会删除重复的数据。
 
-  ```php
+  ```sql
   SELECT expression1, expression2 FROM table_name
   [WHERE conditions]
   UNION [ALL | DISTINCT]
@@ -465,49 +428,130 @@ INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 
 + 分组
 
-  `GROUP BY` 语句根据一个或多个列对结果集进行分组。在分组的列上我们可以使用 `COUNT`, `SUM`, `AVG` 等函数。
 
-  `WITH ROLLUP` 可以实现在分组统计数据基础上再进行相同的统计（`COUNT`, `SUM`, `AVG`...）。
-
-  ```php
-  SELECT field, func(field)
-  FROM table_name
-  WHERE field operator value
-  GROUP BY field;
-  ```
 
 + 多表查询
 
-  在 `SELECT`, `UPDATE` 和 `DELETE` 语句中使用 `JOIN` 来联合多表查询。
+在 `SELECT`, `UPDATE` 和 `DELETE` 语句中使用 `JOIN` 来联合多表查询。
 
-  `JOIN` 按照功能大致分为如下三类:
+`JOIN` 按照功能大致分为如下三类:
 
-  + `INNER JOIN`（内连接,或等值连接）：获取两个表中字段匹配关系的记录。
-  + `LEFT JOIN`（左连接）：获取左表所有记录，即使右表没有对应匹配的记录。
-  + `RIGHT JOIN`（右连接）：获取右表所有记录，即使左表没有对应匹配的记录。
++ `INNER JOIN`（内连接,或等值连接）：获取两个表中字段匹配关系的记录。
++ `LEFT JOIN`（左连接）：获取左表所有记录，即使右表没有对应匹配的记录。
++ `RIGHT JOIN`（右连接）：获取右表所有记录，即使左表没有对应匹配的记录。
 
-+ 事务
+### 去重
 
-  事务主要用于处理操作量大，复杂度高的数据。
-  事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。
+可以用 `DISTINCT` 关键字去重。
 
-  事务控制语句：
+语法：`SELECT DISTINCT <字段名> FROM <表名>`
 
-  + `BEGIN` 或 `START TRANSACTION`： 显式地开启一个事务；
-  + `COMMIT` 或 `COMMIT WORK`：提交事务，并使已对数据库进行的所有修改成为永久性的；
-  + `ROLLBACK` 或 `ROLLBACK WORK`：回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；
-  + `SAVEPOINT identifier`，`SAVEPOINT` 允许在事务中创建一个保存点，一个事务中可以有多个 `SAVEPOINT`；
-  + `RELEASE SAVEPOINT identifier` 删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；
-  + `ROLLBACK TO identifier` 把事务回滚到标记点；
-  + `SET TRANSACTION` 用来设置事务的隔离级别。
+```sql
+-- 返回的 age 字段值 不得重复
+SELECT DISTINCT age FROM user_accounts;
+```
 
-  处理事务的两种方法：
+### 别名
 
-  + 用 `BEGIN`, `ROLLBACK`, `COMMIT` 来实现
-    + `BEGIN` 开始一个事务
-    + `ROLLBACK` 事务回滚
-    + `COMMIT` 提交事务
-  
-  + 直接用 `SET` 来改变 `MySQL` 的自动提交模式
-    + `SET AUTOCOMMIT=0` 禁止自动提交
-    + `SET AUTOCOMMIT=1` 开启自动提交
+当表名很长或者执行一些特殊查询的时候，为了方便操作或者需要多次使用相同的表时，可以用 `AS` 关键字为表指定别名，用这个别名代替表原来的名称。
+
+也可以指定列的别名，替换字段或表达式。
+
+语法1：`<表名> [AS] <别名>`，`AS` 关键字为可选
+
+语法2：`<列名> [AS] <列别名>`
+
+```sql
+-- 指定表别名
+SELECT user.nickname, user.id FROM user_accounts AS user;
+-- 指定列别名
+SELECT nickname AS username FROM user_accounts;
+```
+
+### 分页
+
+使用 `LIMT` 来限制返回的条数。
+
+语法： `<LIMIT> [<位置偏移量>,] <行数>`
+
+`LIMIT` 接受一个或两个数字参数。参数必须是一个整数常量。
+
+如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。
+
+```sql
+-- 查询第一页，返回 5 条
+SELECT * FROM user_accounts LIMIT 0, 5;
+```
+
+
+
+
+
+
+
+## 新增/修改/删除数据
+
+### 新增数据
+
+`INSERT` 语句有两种语法形式，分别是 `INSERT VALUES` 语句和 `INSERT SET` 语句。
+
+语法1：`INSERT INTO <表名> (<列名1> … , <列名n> ) VALUES (<值1>, … , <值n>);`
+
+语法2：`INSERT INTO <表名> SET <列名1> = <值1>, <列名2> = <值2>, … ;`
+
+若向表中的所有列插入数据，直接采用 `INSERT <表名> VALUES (<值1>, … , <值n>)` 即可，所以的列名均可省略。
+
+使用 `INSERT INTO … SELECT … FROM` 语句可以从一个或多个表中取出数据，并将这些数据作为行数据插入表中。
+
+实例：
+
+```sql
+-- 使用 insert valus 插入数据
+INSERT INTO user_accounts (nickname, mobile) VALUES ('leo', 15522223333);
+-- 使用 insert set 插入数据
+INSERT INTO user_accounts SET nickname = 'Bob', mobile = 13877779999;
+-- 从 users 表中查询数据，并将值插入 user_accounts 表
+INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
+```
+
+### 修改数据
+
+  `UPDATE table_name SET field1=new_value1, field2=new_value2 [WHERE Clause];`
+
++ 可以同时更新一个或多个字段。
++ 可以在 `WHERE` 子句中指定任何条件。
++ 可以在一个单独表中同时更新数据。
+
+### 删除数据
+
+`DELETE FROM table_name [WHERE Clause]`
+
++ 如果没有指定 `WHERE` 子句，MySQL 表中的所有记录将被删除。
++ 可以在 `WHERE` 子句中指定任何条件。
++ 可以在单个表中一次性删除记录。
+
+## 事务
+
+事务主要用于处理操作量大，复杂度高的数据。
+事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。
+
+事务控制语句：
+
++ `BEGIN` 或 `START TRANSACTION`： 显式地开启一个事务；
++ `COMMIT` 或 `COMMIT WORK`：提交事务，并使已对数据库进行的所有修改成为永久性的；
++ `ROLLBACK` 或 `ROLLBACK WORK`：回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；
++ `SAVEPOINT identifier`，`SAVEPOINT` 允许在事务中创建一个保存点，一个事务中可以有多个 `SAVEPOINT`；
++ `RELEASE SAVEPOINT identifier` 删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；
++ `ROLLBACK TO identifier` 把事务回滚到标记点；
++ `SET TRANSACTION` 用来设置事务的隔离级别。
+
+处理事务的两种方法：
+
++ 用 `BEGIN`, `ROLLBACK`, `COMMIT` 来实现
+  + `BEGIN` 开始一个事务
+  + `ROLLBACK` 事务回滚
+  + `COMMIT` 提交事务
+
++ 直接用 `SET` 来改变 `MySQL` 的自动提交模式
+  + `SET AUTOCOMMIT=0` 禁止自动提交
+  + `SET AUTOCOMMIT=1` 开启自动提交
