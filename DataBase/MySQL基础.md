@@ -93,20 +93,18 @@ TEXT 用于存储非二进制字符串，所以 TEXT 系列的类型存储与解
 
 ### 创建数据库
 
-使用 `CREATE DATABASE` 语句创建数据库，语法：
+使用 `CREATE DATABASE` 语句创建数据库。
+
+语法：
 
 ```sql
 CREATE DATABASE [IF NOT EXISTS] <数据库名> [[DEFAULT] CHARACTER SET <字符集名>] [[DEFAULT] COLLATE <校对规则名>];
 ```
 
-语法说明：
-
 + <数据库名>：数据库名称必须符合操作系统的文件夹命名规则，注意在 MySQL 中不区分大小写。
 + IF NOT EXISTS：在创建数据库之前进行判断，只有该数据库目前尚不存在时才能执行操作。此选项可以用来避免数据库已经存在而重复创建的错误。
 + [DEFAULT] CHARACTER SET：指定数据库的默认字符集。字符集是用来定义 MySQL 存储字符串的方式。
 + [DEFAULT] COLLATE：指定字符集的默认校对规则。校对规则定义了比较字符串的方式，解决排序和字符分组的问题。
-
-实例：
 
 ```sql
 -- 判断数据库是否存在，创建名为 test_db 的数据库
@@ -117,18 +115,12 @@ CREATE DATABASE IF NOT EXISTS test_db DEFAULT CHARACTER SET utf8 DEFAULT COLLATE
 
 ### 查看数据库
 
-使用 `SHOW DATABASES` 语句查看数据库，语法：
+使用 `SHOW DATABASES` 语句查看数据库。
 
-```sql
-SHOW DATABASES [LIKE '数据库名'];
-```
-
-语法说明：
+语法：`SHOW DATABASES [LIKE '数据库名'];`
 
 + LIKE 从句是可选项，用于匹配指定的数据库名称。LIKE 从句可以部分匹配，也可以完全匹配。
 + 数据库名由单引号 `''` 包裹。
-
-实例：
 
 ```sql
 -- 查看所有数据库
@@ -139,37 +131,27 @@ SHOW DATABASES LIKE 'test_db';
 
 ### 删除数据库
 
-使用 `DROP DATABASE` 语句删除已创建的数据库，语法：
+使用 `DROP DATABASE` 语句删除已创建的数据库。
 
-```sql
-DROP DATABASE [IF EXISTS] <数据库名>;
-```
+语法：`DROP DATABASE [IF EXISTS] <数据库名>;`
 
-### 选择数据库
+### 使用数据库
 
-使用 `USE` 语句用来完成一个数据库到另一个数据库的跳转，语法：
+使用 `USE` 语句用来完成一个数据库到另一个数据库的跳转。
 
-```sql
-USE <数据库名>;
-```
+语法：`USE <数据库名>;`
 
 ## 数据表操作
 
 ### 创建数据表
 
-使用 `CREATE TABLE` 语句创建数据表，该语句命令比较多，其主要是由表创建定义、表选项和分区选项所组成，语法：
+使用 `CREATE TABLE` 语句创建数据表，该语句命令比较多，其主要是由表创建定义、表选项和分区选项所组成。
 
-```sql
-CREATE TABLE <表名> ([表定义选项])[表选项][分区选项];
-```
-
-语法说明：
+语法：`CREATE TABLE <表名> ([表定义选项])[表选项][分区选项];`
 
 + 表定义选项的格式为：`<列名1> <类型1> [,…] <列名n> <类型n>`
 + 表名不区分大小写，不能使用 SQL 语言中的关键字，如DROP、ALTER、INSERT等。
 + 表中每个列（字段）的名称和数据类型，如果创建多个列，要用逗号隔开。
-
-实例：
 
 ```sql
 -- 如果数据库中存在 user_accounts表，就删除掉
@@ -216,11 +198,7 @@ CREATE TABLE `user_accounts` (
 
 常用的修改表的操作有修改表名、修改字段数据类型或字段名、增加和删除字段、修改字段的排列位置、更改表的存储引擎、删除表的外键约束等。
 
-语法：
-
-```sql
-ALTER TABLE <表名> [修改选项];
-```
+语法：`ALTER TABLE <表名> [修改选项];`
 
 修改选项：
 
@@ -240,8 +218,6 @@ ALTER TABLE <表名> [修改选项];
 + FIRST 为可选参数，将新添加的字段设置为表的第一个字段。
 + AFTER 为可选参数，将新添加的字段添加到指定的已存在的字段名的后面。
 
-实例：
-
 ```sql
 -- 添加 age 字段
 ALTER TABLE user_accounts ADD COLUMN age TINYINT;
@@ -250,8 +226,6 @@ ALTER TABLE user_accounts ADD COLUMN age TINYINT;
 #### 修改字段名
 
 语法：`ALTER TABLE <表名> CHANGE COLUMN <旧字段名> <新字段名> <新数据类型>;`
-
-实例：
 
 ```sql
 -- 修改 nickname 字段名
@@ -262,8 +236,6 @@ ALTER TABLE user_accounts CHANGE COLUMN nickname username VARCHAR(25);
 
 语法：`ALTER TABLE <表名> MODIFY <字段名> <数据类型>;`
 
-实例：
-
 ```sql
 -- 修改 nickname 数据类型
 ALTER TABLE user_accounts MODIFY nickname VARCHAR(30);
@@ -273,8 +245,6 @@ ALTER TABLE user_accounts MODIFY nickname VARCHAR(30);
 
 语法：`ALTER TABLE <表名> DROP <字段名>;`
 
-实例：
-
 ```sql
 -- 删除 username 字段
 ALTER TABLE user_accounts DROP username;
@@ -282,7 +252,9 @@ ALTER TABLE user_accounts DROP username;
 
 ## 查询数据
 
-从数据表中查询数据的基本语句为 `SELECT` 语句，语法：
+从数据表中查询数据的基本语句为 `SELECT` 语句。
+
+语法：
 
 ```sql
 SELECT {* | <字段名>} FROM <表1>, <表2>, …
@@ -349,7 +321,24 @@ SELECT nickname FROM user_accounts WHERE nickname LIKE '%o%';
 SELECT nickname FROM user_accounts WHERE nickname LIKE '_O_';
 ```
 
-### 分组查询
+### 别名
+
+当表名很长或者执行一些特殊查询的时候，为了方便操作或者需要多次使用相同的表时，可以用 `AS` 关键字为表指定别名，用这个别名代替表原来的名称。
+
+也可以指定列的别名，替换字段或表达式。
+
+语法1：`<表名> [AS] <别名>`，`AS` 关键字为可选
+
+语法2：`<列名> [AS] <列别名>`
+
+```sql
+-- 指定表别名
+SELECT user.nickname, user.id FROM user_accounts AS user;
+-- 指定列别名
+SELECT nickname AS username FROM user_accounts;
+```
+
+### 分组
 
 使用 `GROUP BY` 子句，将结果集中的数据行根据选择列的值进行逻辑分组，实现对每个组而不是对整个结果集进行整合。
 
@@ -371,101 +360,40 @@ SELECT age, GROUP_CONCAT(nickname) AS username FROM user_accounts GROUP BY age;
 SELECT sex, COUNT(*) AS user_count FROM user_accounts GROUP BY sex;
 ```
 
+### 过滤
+
+使用 `GROUP BY` 子句分组数据后，还可以使用 `HAVING` 子句过滤分组。
+
+语法：`HAVING <条件>`
+
+`HAVING` 子句和 `WHERE` 子句非常相似，`HAVING` 子句支持 `WHERE` 子句中所有的操作符和语法，但是两者存在几点差异：
+
++ `WHERE` 子句主要用于过滤数据行，而 `HAVING` 子句主要用于过滤分组。
++ `WHERE` 子句不可以包含聚合函数，`HAVING` 子句中的条件可以包含聚合函数。
++ `WHERE` 子句会在数据分组前进行过滤，`HAVING` 子句是在数据分组后进行过滤。
+
+```sql
+-- 根据 age 分组，并过滤出 nickname 数量大于等于 2 的
+SELECT age, GROUP_CONCAT(nickname) AS names FROM user_accounts GROUP BY age HAVING COUNT(nickname) >=2;
+```
+
 ### 排序
 
 使用 `ORDER BY` 子句用来进行排序。
 
 语法：`ORDER BY {<列名> | <表达式> | <位置>} [ASC|DESC]`
 
++ `ORDER BY` 子句中可以包含子查询。
++ 当排序的值中存在空值时，`ORDER BY` 子句会将该空值作为最小值来对待。
++ 当在 `ORDER BY` 子句中指定多个列进行排序时，会按照列的顺序从左到右依次进行排序。
+
 ```sql
 -- 默认升序排列
 SELECT * FROM user_accounts ORDER BY age;
-SELECT * FROM user_accounts ORDER BY id ASC;
-```
-
-
-
-
-使用 `BETWEEN AND` 来查询某个范围内的值，该操作符需要两个参数，即范围的开始值和结束值。
-
-```sql
-SELECT * FROM user_accounts WHERE create_at BETWEEN '2019-11-11' AND '2019-11-14';
-```
-
-
-+ 正则表达式
-
-  使用 `REGEXP` 操作符来进行正则表达式匹配。
-
-+ `UNION` 操作符
-
-  `UNION` 操作符用于连接两个以上的 `SELECT` 语句的结果组合到一个结果集合中。多个 `SELECT` 语句会删除重复的数据。
-
-  ```sql
-  SELECT expression1, expression2 FROM table_name
-  [WHERE conditions]
-  UNION [ALL | DISTINCT]
-  SELECT expression1, expression2 FROM table_name
-  [WHERE conditions];
-  ```
-
-  + `expression1, expression2`: 要检索的列。
-  + `tables`: 要检索的数据表。
-  + `WHERE conditions`: 可选， 检索条件。
-  + `DISTINCT`: 可选，删除结果集中重复的数据。默认情况下 `UNION` 操作符已经删除了重复数据，所以 `DISTINCT` 修饰符对结果没影响。
-  + `ALL`: 可选，返回所有结果集，包含重复数据。
-
-+ 排序
-
-  使用 `ORDER BY` 子句将查询数据排序后再返回数据。
-
-  `SELECT field FROM table_name ORDER BY field [ASC | DESC];`
-
-  + 可以使用任何字段来作为排序的条件，从而返回排序后的查询结果。
-  + 可以设定多个字段来排序。
-  + 可以使用 `ASC` 或 `DESC` 关键字来设置查询结果是按升序或降序排列。 默认情况下，它是按升序排列。
-  + 可以添加 `WHERE...LIKE` 子句来设置条件。
-
-+ 分组
-
-
-
-+ 多表查询
-
-在 `SELECT`, `UPDATE` 和 `DELETE` 语句中使用 `JOIN` 来联合多表查询。
-
-`JOIN` 按照功能大致分为如下三类:
-
-+ `INNER JOIN`（内连接,或等值连接）：获取两个表中字段匹配关系的记录。
-+ `LEFT JOIN`（左连接）：获取左表所有记录，即使右表没有对应匹配的记录。
-+ `RIGHT JOIN`（右连接）：获取右表所有记录，即使左表没有对应匹配的记录。
-
-### 去重
-
-可以用 `DISTINCT` 关键字去重。
-
-语法：`SELECT DISTINCT <字段名> FROM <表名>`
-
-```sql
--- 返回的 age 字段值 不得重复
-SELECT DISTINCT age FROM user_accounts;
-```
-
-### 别名
-
-当表名很长或者执行一些特殊查询的时候，为了方便操作或者需要多次使用相同的表时，可以用 `AS` 关键字为表指定别名，用这个别名代替表原来的名称。
-
-也可以指定列的别名，替换字段或表达式。
-
-语法1：`<表名> [AS] <别名>`，`AS` 关键字为可选
-
-语法2：`<列名> [AS] <列别名>`
-
-```sql
--- 指定表别名
-SELECT user.nickname, user.id FROM user_accounts AS user;
--- 指定列别名
-SELECT nickname AS username FROM user_accounts;
+-- 降序排列
+SELECT * FROM user_accounts ORDER BY id DESC;
+-- 先按 age 升序排列，再根据 nickname 按降序排列
+SELECT age, nickname FROM user_accounts ORDER BY age, nickname DESC;
 ```
 
 ### 分页
@@ -479,15 +407,89 @@ SELECT nickname AS username FROM user_accounts;
 如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。
 
 ```sql
--- 查询第一页，返回 5 条
+-- 查询第一页，返回 5 条, MySQL 5.7 中可以使用 `LIMIT 0 OFFSET 5`
 SELECT * FROM user_accounts LIMIT 0, 5;
 ```
 
+### 去重
 
+可以用 `DISTINCT` 关键字去重。
 
+语法：`SELECT DISTINCT <字段名> FROM <表名>`
 
+```sql
+-- 返回的 age 字段值 不得重复
+SELECT DISTINCT age FROM user_accounts;
+```
 
+### 范围查询
 
+使用 `BETWEEN <值1> AND <值2>` 来查询某个范围内的值，该操作符需要两个参数，即范围的开始值和结束值。
+
+```sql
+SELECT * FROM user_accounts WHERE create_at BETWEEN '2019-11-11' AND '2019-11-14';
+```
+
+使用 `IN (<值1>, <值2>)` 用来指定范围，范围中的每一条，都进行匹配。
+
+```sql
+SELECT * FROM user_accounts WHERE nickname IN ('Leo', 'Bob');
+```
+
+### 正则表达式查询
+
+使用 `REGEXP` 操作符来进行正则表达式匹配。
+
++ `^`：匹配字符串的开始位置。示例：`'^b'` 匹配以字母 b 开头的字符串，如：book、big、banana、 bike 等。
++ `&`：匹配字符串的结束位置。示例：`'st$'` 匹配以 st 结尾的字符串，如：test、resist、persist 等。
++ `.`：匹配除 "\n" 之外的任何单个字符单个字符。示例：`'b.t'` 匹配任何 b 和 t 之间有一个字符，如 bit、bat、but、bite 等。
++ `*`：匹配零个或多个在它前面的字符。示例：`'f*n'` 匹配字符 n 前面有任意个字符 f，如：fn、fan、faan、abcn 等。
++ `+`：匹配前面的字符 1 次或多次。示例：`'ba+'` 匹配以 b 开头，后面至少紧跟一个 a，如：ba、bay、bare、battle 等。
++ `字符串`：匹配包含指定字符的字符串。示例：`'fa'`，匹配 fan、afa、faad 等。
++ `[字符集合]`：匹配字符集合中的任何一个字符。示例：`'[xz]'`匹配 x 或者 z，如：dizzy、zebra、x-ray、 extra 等。
++ `[^]`：匹配不在括号中的任何字符。示例：`'[^abc]'` 匹配任何不包 含 a、b 或 c 的字符串，如： desk、fox、f8ke 等。
++ `字符串{n,}`：匹配前面的字符串至少 n 次。示例：`b{2}` 匹配 2 个或更多的 b，如：bbb、 bbbb、 bbbbbbb 等。
++ `字符串{n,m}`：匹配前面的字符串至少 n 次， 至多 m 次。示例：`b{2,4}` 匹配最少 2 个，最多 4 个 b。如：bbb、 bbbb 等。
++ `p1|p2|p3`：匹配 p1 或 p2 或 p3。示例：`'(z|f)ood'` 匹配 zood 或 food。
+
+```sql
+-- 查询以 L 开头的 nickname
+SELECT * FROM user_accounts WHERE nickname REGEXP '^L';
+-- 查询以 L 或 B开头，或者以 y 结尾的 nickname
+SELECT * FROM user_accounts WHERE nickname REGEXP '^[LB]|y$';
+-- 查询至少包含一个 o 的 nickname
+SELECT * FROM user_accounts WHERE nickname REGEXP 'o+';
+```
+
+### 联合查询
+
+`UNION` 操作符用于连接两个以上的 `SELECT` 语句的结果组合到一个结果集合中。多个 `SELECT` 语句会删除重复的数据。
+
+语法：
+
+```sql
+SELECT {* | <字段名>} FROM <表名> [WHERE conditions]
+UNION [ALL | DISTINCT]
+SELECT{* | <字段名>} FROM <表名> [WHERE conditions];
+```
+
++ `DISTINCT`: 可选，删除结果集中重复的数据。默认情况下 `UNION` 操作符已经删除了重复数据，所以 `DISTINCT` 修饰符对结果没影响。
++ `ALL`: 可选，返回所有结果集，包含重复数据。
+
+```sql
+-- 联合查询 user_accounts 表的 nickname 和 users 表的 name，并全部返回
+SELECT nickname FROM user_accounts UNION ALL SELECT name AS nickname FROM users;
+```
+
+### 多表连接查询
+
+使用 `JOIN` 把来自两个或多个表的行结合起来。
+
+按照功能大致分为如下三类:
+
++ `INNER JOIN`（内连接）：获取两个表中字段匹配关系的记录。
++ `LEFT JOIN`（左连接）：获取左表所有记录，即使右表没有对应匹配的记录。
++ `RIGHT JOIN`（右连接）：获取右表所有记录，即使左表没有对应匹配的记录。
 
 ## 新增/修改/删除数据
 
@@ -503,8 +505,6 @@ SELECT * FROM user_accounts LIMIT 0, 5;
 
 使用 `INSERT INTO … SELECT … FROM` 语句可以从一个或多个表中取出数据，并将这些数据作为行数据插入表中。
 
-实例：
-
 ```sql
 -- 使用 insert valus 插入数据
 INSERT INTO user_accounts (nickname, mobile) VALUES ('leo', 15522223333);
@@ -516,7 +516,7 @@ INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 
 ### 修改数据
 
-  `UPDATE table_name SET field1=new_value1, field2=new_value2 [WHERE Clause];`
+语法： `UPDATE table_name SET field1=new_value1, field2=new_value2 [WHERE Clause];`
 
 + 可以同时更新一个或多个字段。
 + 可以在 `WHERE` 子句中指定任何条件。
@@ -524,7 +524,7 @@ INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 
 ### 删除数据
 
-`DELETE FROM table_name [WHERE Clause]`
+语法：`DELETE FROM table_name [WHERE Clause]`
 
 + 如果没有指定 `WHERE` 子句，MySQL 表中的所有记录将被删除。
 + 可以在 `WHERE` 子句中指定任何条件。
