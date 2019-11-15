@@ -400,7 +400,7 @@ SELECT age, nickname FROM user_accounts ORDER BY age, nickname DESC;
 
 使用 `LIMT` 来限制返回的条数。
 
-语法： `<LIMIT> [<位置偏移量>,] <行数>`
+语法： `<LIMIT> [<位置偏移量>,] <行数>` 或 `LIMIT <位置偏移量> OFFSET <行数>`
 
 `LIMIT` 接受一个或两个数字参数。参数必须是一个整数常量。
 
@@ -481,15 +481,36 @@ SELECT{* | <字段名>} FROM <表名> [WHERE conditions];
 SELECT nickname FROM user_accounts UNION ALL SELECT name AS nickname FROM users;
 ```
 
-### 多表连接查询
+### 连接查询
 
-使用 `JOIN` 把来自两个或多个表的行结合起来。
+使用 `JOIN` 把来自两个或多个表的行结合起来。即先确定一个主表作为结果集，然后，把其他表的行有选择性地连接在主表结果集上。
 
-按照功能大致分为如下三类:
+#### 内连接
 
-+ `INNER JOIN`（内连接）：获取两个表中字段匹配关系的记录。
-+ `LEFT JOIN`（左连接）：获取左表所有记录，即使右表没有对应匹配的记录。
-+ `RIGHT JOIN`（右连接）：获取右表所有记录，即使左表没有对应匹配的记录。
+内连接是系统默认的表连接，所以在 `FROM` 子句后可以省略 `INNER` 关键字，只用关键字 `JOIN`。
+
+使用内连接后，`FROM` 子句中的 `ON` 子句可用来设置连接表的条件。
+
+语法：`SELECT <列名1，列名2 …> FROM <表名1> INNER JOIN <表名2> [ ON子句]`
+
++ 先确定主表，使用 `FROM <表名1>`，再确定需要连接的表，使用 `INNER JOIN <表名2>`。
++ 确定连接条件，使用 `ON <条件...>`。
++ 可再加上 `WHERE`、`ORDER BY` 等子句。
+
+```sql
+-- 用户表中只有 公司 id 没有公司名，通过用户表的 公司 id 在公司表中找到对应的公司名。
+SELECT u.id, u.nickname, c.name AS company_name FROM user_accounts u INNER JOIN company c ON u.c_id = c.id;
+```
+
+`INNER JOIN` 只返回同时存在于两张表的行数据。
+
+#### 左连接
+
+左连接使用关键字 `LEFT OUTER JOIN` 或者 `LEFT JOIN`。
+
+#### 右连接
+
+右连接使用关键字 `RIGHT OUTER JOIN` 或者 `RIGHT JOIN`。
 
 ## 新增/修改/删除数据
 
@@ -529,6 +550,8 @@ INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 + 如果没有指定 `WHERE` 子句，MySQL 表中的所有记录将被删除。
 + 可以在 `WHERE` 子句中指定任何条件。
 + 可以在单个表中一次性删除记录。
+
+## 函数
 
 ## 事务
 
