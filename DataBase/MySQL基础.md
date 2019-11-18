@@ -481,6 +481,14 @@ SELECT{* | <字段名>} FROM <表名> [WHERE conditions];
 SELECT nickname FROM user_accounts UNION ALL SELECT name AS nickname FROM users;
 ```
 
+### 子查询
+
+子查询指一个查询语句嵌套在另一个查询语句内部的查询，在 `SELECT` 子句中先计算子查询，子查询结果作为外层另一个查询的过滤条件，查询可以基于一个表或者多个表。
+
+子查询中常用的操作符有 `ANY（SOME）`、`ALL`、`IN` 和 `EXISTS`。
+
+子查询可以添加到 `SELECT``、UPDATE` 和 `DELETE` 语句中，而且可以进行多层嵌套。子查询也可以使用比较运算符，如`<`、`<=`、`>`、`>=`、`!=`等。
+
 ### 连接查询
 
 使用 `JOIN` 把来自两个或多个表的行结合起来。即先确定一个主表作为结果集，然后，把其他表的行有选择性地连接在主表结果集上。
@@ -508,23 +516,35 @@ SELECT u.id, u.nickname, c.name AS company_name FROM user_accounts u INNER JOIN 
 
 左连接使用关键字 `LEFT OUTER JOIN` 或者 `LEFT JOIN`。
 
+从左表返回所有的行，即使右表中没有匹配。如果右表中没有匹配，则结果为 NULL，即左连接的结果集中的 NULL 值表示右表中没有找到与左表相符的记录。
+
+```sql
+SELECT u.id, u.nickname, c.name AS company_name FROM user_accounts u LEFT JOIN company c ON u.c_id = c.id;
+```
+
 #### 右连接
 
 右连接使用关键字 `RIGHT OUTER JOIN` 或者 `RIGHT JOIN`。
+
+从右表返回所有的行，即使左表中没有匹配。如果左表中没有匹配，则结果为 NULL。
+
+```sql
+SELECT u.id, u.nickname, c.name AS company_name FROM user_accounts u RIGHT JOIN company c ON u.c_id = c.id;
+```
 
 ## 新增/修改/删除数据
 
 ### 新增数据
 
-`INSERT` 语句有两种语法形式，分别是 `INSERT VALUES` 语句和 `INSERT SET` 语句。
+使用 `INSERT` 语句向数据库已有的表中插入一行或者多行元组数据。有两种语法形式，分别是 `INSERT VALUES` 和 `INSERT SET`。
 
 语法1：`INSERT INTO <表名> (<列名1> … , <列名n> ) VALUES (<值1>, … , <值n>);`
 
 语法2：`INSERT INTO <表名> SET <列名1> = <值1>, <列名2> = <值2>, … ;`
 
-若向表中的所有列插入数据，直接采用 `INSERT <表名> VALUES (<值1>, … , <值n>)` 即可，所以的列名均可省略。
+若向表中的所有列插入数据，直接采用 `INSERT <表名> VALUES (<值1>, … , <值n>);` 即可，所以的列名均可省略。
 
-使用 `INSERT INTO … SELECT … FROM` 语句可以从一个或多个表中取出数据，并将这些数据作为行数据插入表中。
+使用 `INSERT INTO ... SELECT ... FROM ...` 语句可以从一个或多个表中取出数据，并将这些数据作为行数据插入表中。
 
 ```sql
 -- 使用 insert valus 插入数据
@@ -537,44 +557,31 @@ INSERT INTO user_accounts (nickname, mobile) SELECT nickname, mobile FROM users;
 
 ### 修改数据
 
-语法： `UPDATE table_name SET field1=new_value1, field2=new_value2 [WHERE Clause];`
+使用 `UPDATE` 语句来修改、更新一个或多个表的数据。
 
-+ 可以同时更新一个或多个字段。
-+ 可以在 `WHERE` 子句中指定任何条件。
-+ 可以在一个单独表中同时更新数据。
+语法： `UPDATE <表名> SET 字段1=值1 [, 字段2=值2, … ] [WHERE 子句 ][ORDER BY 子句] [LIMIT 子句];`
+
++ `SET 子句`：用于指定表中要修改的列名及其列值。其中，每个指定的列值可以是表达式，也可以是该列对应的默认值。如果指定的是默认值，可用关键字 `DEFAULT` 表示列值。
++ `WHERE 子句`：可选项。用于限定表中要修改的行。若不指定，则修改表中所有的行。
++ `ORDER BY 子句`：可选项。用于限定表中的行被修改的次序。
++ `LIMIT` 子句：可选项。用于限定被修改的行数。
+
+```sql
+UPDATE user_accounts SET age = 17 WHERE id = 1;
+```
 
 ### 删除数据
 
-语法：`DELETE FROM table_name [WHERE Clause]`
+使用 `DELETE` 语句来删除表的一行或者多行数据。
 
-+ 如果没有指定 `WHERE` 子句，MySQL 表中的所有记录将被删除。
-+ 可以在 `WHERE` 子句中指定任何条件。
-+ 可以在单个表中一次性删除记录。
+语法：`DELETE FROM <表名> [WHERE 子句] [ORDER BY 子句] [LIMIT 子句]`
 
-## 函数
++ `ORDER BY 子句`：可选项。表示删除时，表中各行将按照子句中指定的顺序进行删除。
++ `WHERE 子句`：可选项。表示为删除操作限定删除条件，若省略该子句，则代表删除该表中的所有行。
++ `LIMIT 子句`：可选项。用于告知服务器在控制命令被返回到客户端前被删除行的最大值。
 
-## 事务
-
-事务主要用于处理操作量大，复杂度高的数据。
-事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。
-
-事务控制语句：
-
-+ `BEGIN` 或 `START TRANSACTION`： 显式地开启一个事务；
-+ `COMMIT` 或 `COMMIT WORK`：提交事务，并使已对数据库进行的所有修改成为永久性的；
-+ `ROLLBACK` 或 `ROLLBACK WORK`：回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；
-+ `SAVEPOINT identifier`，`SAVEPOINT` 允许在事务中创建一个保存点，一个事务中可以有多个 `SAVEPOINT`；
-+ `RELEASE SAVEPOINT identifier` 删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；
-+ `ROLLBACK TO identifier` 把事务回滚到标记点；
-+ `SET TRANSACTION` 用来设置事务的隔离级别。
-
-处理事务的两种方法：
-
-+ 用 `BEGIN`, `ROLLBACK`, `COMMIT` 来实现
-  + `BEGIN` 开始一个事务
-  + `ROLLBACK` 事务回滚
-  + `COMMIT` 提交事务
-
-+ 直接用 `SET` 来改变 `MySQL` 的自动提交模式
-  + `SET AUTOCOMMIT=0` 禁止自动提交
-  + `SET AUTOCOMMIT=1` 开启自动提交
+```sql
+DELETE FROM user_accounts WHERE id = 1;
+-- 删除所有
+DELETE FROM user_accounts;
+```
